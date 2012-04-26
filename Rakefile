@@ -17,37 +17,24 @@ Jeweler::Tasks.new do |gem|
   gem.name = "aws-s3-cse"
   gem.homepage = "http://github.com/tcnijmeijer/aws-s3-cse"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = "Provides a ruby implementation of the Client Side Encryption client for AWS-S3"
+  gem.description = "Provides a ruby implementation of the Client Side Encryption client for AWS-S3"
   gem.email = "tom@nijmeijer.org"
   gem.authors = ["Tom Nijmeijer"]
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
 
-require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec) do |spec|
+ spec.pattern      = './spec/**/*_spec.rb'
 end
 
-require 'rcov/rcovtask'
-Rcov::RcovTask.new do |test|
-  test.libs << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-  test.rcov_opts << '--exclude "gems/*"'
+RSpec::Core::RakeTask.new(:rcov) do |rcov|
+ rcov.pattern    = "./spec/**/*_spec.rb"
+ rcov.rcov       = true
+ rcov.rspec_opts = "--format doc --color"
+ rcov.rcov_opts  = "-x gem,spec"
 end
 
-task :default => :test
-
-require 'rdoc/task'
-Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
-
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "aws-s3-cse #{version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
-end
+task :default => :spec
