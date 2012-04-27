@@ -42,8 +42,8 @@ module AWS
         iv   = response.http_response.headers["#{HEADER_META}-#{HEADER_IV}"]
 
         if ekey && iv
-          ekey  = Base64.decode64(URI.decode(ekey))
-          iv    = Base64.decode64(URI.decode(iv))
+          ekey  = Base64.decode64(URI.decode([ekey].compact.join))
+          iv    = Base64.decode64(URI.decode([iv].compact.join))
           edata = response.data
 
           begin
