@@ -29,9 +29,9 @@ module AWS
         key = @private_encryption_key.private_encrypt(key)
 
         options[:metadata]           ||= {}
-        options[:metadata][HEADER_KEY] = Base64.strict_encode64(key)
-        options[:metadata][HEADER_IV]  = Base64.strict_encode64(iv)
-        options[:data]                 = Base64.strict_encode64(edata)
+        options[:metadata][HEADER_KEY] = URI.encode(Base64.encode64(key))
+        options[:metadata][HEADER_IV]  = URI.encode(Base64.encode64(iv))
+        options[:data]                 = edata
         super
       end
 
@@ -42,9 +42,9 @@ module AWS
         iv   = response.http_response.headers["#{HEADER_META}-#{HEADER_IV}"]
 
         if ekey && iv
-          ekey  = Base64.strict_decode64(ekey)
-          iv    = Base64.strict_decode64(iv)
-          edata = Base64.strict_decode64(response.data)
+          ekey  = Base64.decode64(URI.decode(ekey))
+          iv    = Base64.decode64(URI.decode(iv))
+          edata = response.data
           key   = @public_encryption_key.public_decrypt(ekey)
           data  = crypter.decrypt_data(edata, key, iv)
           Core::MetaUtils.extend_method(response, :data) { data }

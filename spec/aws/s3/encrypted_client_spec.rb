@@ -107,17 +107,17 @@ module AWS
 
         it "should call super with encrypted data" do
           args = client.super_calls.first.last
-          args[:data].should == Base64.strict_encode64("HARRO")
+          args[:data].should == "HARRO"
         end
 
         it "should call super with the encrypted envelope key as metadata" do
           args = client.super_calls.first.last
-          args[:metadata]["x-amz-key"].should == Base64.strict_encode64("EKEY")
+          args[:metadata]["x-amz-key"].should == URI.encode(Base64.encode64("EKEY"))
         end
 
         it "should call super with the initialization vector as metadata" do
           args = client.super_calls.first.last
-          args[:metadata]["x-amz-iv"].should == Base64.strict_encode64("VECTOR")
+          args[:metadata]["x-amz-iv"].should == URI.encode(Base64.encode64("VECTOR"))
         end
       end
 
@@ -155,9 +155,9 @@ module AWS
               self.super_calls << [:get_object, opts]
 
               resp = AWS::Core::Http::Response.new
-              resp.body = Base64.strict_encode64("HARRO")
-              resp.headers['x-amz-meta-x-amz-key'] = Base64.strict_encode64('EKEY')
-              resp.headers['x-amz-meta-x-amz-iv']  = Base64.strict_encode64('VECTOR')
+              resp.body = "HARRO"
+              resp.headers['x-amz-meta-x-amz-key'] = URI.encode(Base64.encode64('EKEY'))
+              resp.headers['x-amz-meta-x-amz-iv']  = URI.encode(Base64.encode64('VECTOR'))
               resp = AWS::Core::Response.new(nil, resp)
               Core::MetaUtils.extend_method(resp, :data) { resp.http_response.body }
               resp
