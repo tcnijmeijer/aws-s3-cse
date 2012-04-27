@@ -1,6 +1,11 @@
 = aws-s3-cse
 
-Description goes here.
+Provides a bare-bones Ruby implementation of the client-side encryption for the AWS S3 service. When writing data to AWS the data is encrypted using a randomly generated envelope key and initialization vector. The envelope key is encrypted using a private key provided by the user and added as metadata to the object together with the initialization vector. When reading the object the envelope key is decrypted using the user-provided public key. The data is then decrypted using the envelope key.
+
+The following config options are added to AWS.config:
+* s3_private_key - the private key with which to encrypt the envelope key
+* s3_public_key - the public key with which to decrypt the envelope key
+* s3_client_side_encryption - boolean indicating whether to use client side encryption or not
 
 == Contributing to aws-s3-cse
  
