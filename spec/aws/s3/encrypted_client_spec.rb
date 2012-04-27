@@ -154,12 +154,20 @@ module AWS
             def get_object opts
               self.super_calls << [:get_object, opts]
 
-              resp = AWS::Core::Http::Response.new
-              resp.body = "HARRO"
-              resp.headers['x-amz-meta-x-amz-key'] = URI.encode(Base64.encode64('EKEY'))
-              resp.headers['x-amz-meta-x-amz-iv']  = URI.encode(Base64.encode64('VECTOR'))
-              resp = AWS::Core::Response.new(nil, resp)
-              Core::MetaUtils.extend_method(resp, :data) { resp.http_response.body }
+              if opts[:key] == "file"
+                resp = AWS::Core::Http::Response.new
+                resp.body = "HARRO"
+                resp.headers['x-amz-meta-x-amz-key'] = URI.encode(Base64.encode64('EKEY'))
+                resp.headers['x-amz-meta-x-amz-iv']  = URI.encode(Base64.encode64('VECTOR'))
+                resp = AWS::Core::Response.new(nil, resp)
+                Core::MetaUtils.extend_method(resp, :data) { resp.http_response.body }
+              else
+                resp = AWS::Core::Http::Response.new
+                resp.body = "HELLO"
+                resp = AWS::Core::Response.new(nil, resp)
+                Core::MetaUtils.extend_method(resp, :data) { resp.http_response.body }
+              end
+
               resp
             end
           end
@@ -182,6 +190,17 @@ module AWS
 
         it "should return the unencrypted data" do
           @response.data.should == "HELLO"
+        end
+
+        it "should raise an error if the resource is unencrypted" do
+          lambda { client.get_object(:key => "other_file", :bucket_name => "bucket") }.
+            should raise_error(Errors::UnencryptedData)
+        end
+
+        it "should handle an error when decryption the envelope key" do
+          rsa_key.stub(:public_decrypt).and_raise(OpenSSL::PKey::RSAError.new)
+          lambda { client.get_object(:key => "file", :bucket_name => "bucket") }.
+            should raise_error(Errors::DecryptionError)
         end
       end
     end

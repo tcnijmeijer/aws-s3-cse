@@ -45,9 +45,17 @@ module AWS
           ekey  = Base64.decode64(URI.decode(ekey))
           iv    = Base64.decode64(URI.decode(iv))
           edata = response.data
-          key   = @public_encryption_key.public_decrypt(ekey)
+
+          begin
+            key = @public_encryption_key.public_decrypt(ekey)
+          rescue Exception => e
+            raise Errors::DecryptionError.new(@public_encryption_key, ekey, e)
+          end
+
           data  = crypter.decrypt_data(edata, key, iv)
           Core::MetaUtils.extend_method(response, :data) { data }
+        else
+          raise Errors::UnencryptedData.new(response.http_request, response.http_response)
         end
 
         response
