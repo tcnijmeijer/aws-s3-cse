@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "aws-s3-cse.gemspec",
     "lib/aws-s3-cse.rb",
     "lib/aws/s3/crypter.rb",
     "lib/aws/s3/encrypted_client.rb",
